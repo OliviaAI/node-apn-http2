@@ -32,6 +32,12 @@ class APNPushProvider {
     ensureConnected() {
         if (!this.session || this.session.destroyed) {
             this.session = http2.connect(this.options.production ? AuthorityAddress.production : AuthorityAddress.development);
+            // set default error handler, else the emitter will throw an error that the error event is not handled
+            this.session.on('error', (err) => {
+                // if the error happens during a request, the request will receive the error as well
+                // otherwise the connection will be destroyed and will be reopened the next time this
+                // method is called
+            });
         }
     }
     getAuthToken() {
